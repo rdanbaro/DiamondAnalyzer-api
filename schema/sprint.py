@@ -4,7 +4,7 @@ from typing import Optional
 
 
 class Sprint(BaseModel):
-    id: int
+    id: Optional[int] = None
     nombre: str 
     tipo: str
     ruta_metas_objetivos: str
@@ -15,7 +15,6 @@ class Sprint(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                'id': 1,
                 "nombre": "nombre de ejemplo",
                 "tipo": "Tipo de ejemplo",
                 "ruta_metas_objetivos": "ruta de ejemplo",

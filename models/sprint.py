@@ -1,5 +1,5 @@
 from database.database import Base
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, Date
 #from models.meta import Meta
 from sqlalchemy.orm import relationship
 
@@ -14,7 +14,7 @@ class Sprint(Base):
     ruta_entrenamiento = Column(String(250))
     ruta_diamantes = Column(String(250))
     metas = relationship('Meta', back_populates='sprint')
-    
+    habitos = relationship('Habito', back_populates='sprint')
     
     
 class Meta(Base):
@@ -28,3 +28,15 @@ class Meta(Base):
     realizado = Column(Boolean, nullable=False)
     sprint = relationship('Sprint', back_populates='metas')
     sprint_id = Column(Integer, ForeignKey('Sprints.id'))
+    
+    
+class Habito(Base):
+    __tablename__ = 'Habitos'
+    
+    id = Column(Integer(), primary_key=True)
+    habito = Column(String(100), nullable=False)
+    date = Column(Date, nullable=False)
+    realizado = Column(Boolean, nullable=False)
+    sprint_id = Column(Integer, ForeignKey('Sprints.id'))
+    sprint = relationship('Sprint', back_populates='habitos')
+    
