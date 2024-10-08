@@ -19,3 +19,15 @@ def convertir_fecha_a_datetime(fecha):
     fecha_date = datetime.strptime(f'{dia} {mes} {año} {hora}', '%d %m %Y %H:%M')
     
     return fecha_date
+
+def convertir_fecha_a_datetime2(fecha):
+
+    fecha_date = datetime.strptime(fecha, '%d/%m/%Y')
+    
+    return fecha_date
+
+def convertir_fecha_a_datetime3(fecha):
+
+    fecha_date = datetime.strptime(fecha, '%H:%M')
+    
+    return fecha_date

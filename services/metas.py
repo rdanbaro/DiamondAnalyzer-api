@@ -37,7 +37,6 @@ class MetaService():
     
         
     def create_meta(self, meta):
-        new_meta = Meta(**meta.model_dump())
-        self.db.add(new_meta)
+        self.db.add(meta)
         self.db.commit()
-        return new_meta
+        

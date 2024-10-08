@@ -15,6 +15,7 @@ class Sprint(Base):
     ruta_diamantes = Column(String(250))
     metas = relationship('Meta', back_populates='sprint')
     habitos = relationship('Habito', back_populates='sprint')
+    diamantes = relationship('Diamante', back_populates='sprint')
     
     
 class Meta(Base):
@@ -40,3 +41,16 @@ class Habito(Base):
     sprint_id = Column(Integer, ForeignKey('Sprints.id'))
     sprint = relationship('Sprint', back_populates='habitos')
     
+    
+class Diamante(Base):
+    __tablename__ = 'Diamantes'
+    
+    id = Column(Integer(), primary_key=True)
+    actividad = Column(String(100), nullable=False)
+    fecha = Column(Date, nullable=False)
+    inicio = Column(Date, nullable=False)
+    fin = Column(Date, nullable=False)
+    #duracion = Column(Float, nullable=False)
+    etiqueta = Column(String(100), nullable=False)
+    sprint_id = Column(Integer, ForeignKey('Sprints.id'))
+    sprint = relationship('Sprint', back_populates='diamantes')

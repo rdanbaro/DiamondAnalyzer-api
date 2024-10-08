@@ -40,9 +40,8 @@ class HabitoService():
         
         
     def create_meta(self, habito):
-        new_habito = Habito(**habito.model_dump())
-        self.db.add(new_habito)
+        self.db.add(habito)
         self.db.commit()
-        return new_habito
+        
     
     

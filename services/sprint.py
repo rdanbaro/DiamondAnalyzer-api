@@ -1,9 +1,11 @@
 from models.sprint import Sprint as SprintModel
 from models.sprint import Meta as MetaModel
 from models.sprint import Habito as HabitoModel
+from models.sprint import Diamante as DiamanteModel
 
 from services.habitos import HabitoService
 from services.metas import MetaService
+from services.diamantes import DiamanteService
 
 import pandas as pd
 
@@ -21,21 +23,30 @@ class SprintService:
         self.db.add(new_sprint)
         self.db.commit()
         
+        
+        #Metas
         ruta_metas = sprint.ruta_metas_objetivos
         objs, reqs, cumplidos, realizados = MetaService.get_datos_metas(ruta_metas)
         
         for i in range(len(objs)):
             new_meta = MetaModel(obj=objs[i], requisito=reqs[i], cumplido=cumplidos[i], realizado=realizados[i], sprint_id=new_sprint.id)
-            self.db.add(new_meta)
-            self.db.commit()
+            MetaService(self.db).create_meta(new_meta)
         
-        
+        #Habitos
         ruta_habitos = sprint.ruta_habitos
         habitos = HabitoService.get_datos_habitos(ruta_habitos)
         
         for habito in habitos:
             new_habito = HabitoModel(habito=habito[0],date=habito[1], realizado=habito[2], sprint_id=new_sprint.id)
-            self.db.add(new_habito)
-            self.db.commit()
+            HabitoService(self.db).create_meta(new_habito)
+        
+        #Diamantes
+        ruta_diamantes = sprint.ruta_diamantes
+        diamantes = DiamanteService.get_diamantes(ruta_diamantes)
+        
+        for diamante in diamantes:
+            new_diamante = DiamanteModel(actividad=diamante[0], fecha=diamante[1], inicio=diamante[2], fin=diamante[3], etiqueta=diamante[4], sprint_id=new_sprint.id)
+            DiamanteService(self.db).create_diamante(new_diamante)
+        
         
         return new_sprint
