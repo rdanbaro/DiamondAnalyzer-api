@@ -16,7 +16,7 @@ class Sprint(Base):
     metas = relationship('Meta', back_populates='sprint')
     habitos = relationship('Habito', back_populates='sprint')
     diamantes = relationship('Diamante', back_populates='sprint')
-    
+    entrenamiento = relationship('Entrenamiento', back_populates='sprint')
     
 class Meta(Base):
     __tablename__ = 'Metas'
@@ -54,3 +54,15 @@ class Diamante(Base):
     etiqueta = Column(String(100), nullable=False)
     sprint_id = Column(Integer, ForeignKey('Sprints.id'))
     sprint = relationship('Sprint', back_populates='diamantes')
+    
+class Entrenamiento(Base):
+    __tablename__ = 'Entrenamientos'
+    
+    id = Column(Integer(), primary_key=True)
+    rutina = Column(String(100), nullable=False)
+    fecha = Column(Date, nullable=False)
+    dificultad = Column(String(100), nullable=False)
+    musculos = Column(String(100), nullable=False)
+    
+    sprint_id = Column(Integer, ForeignKey('Sprints.id'))
+    sprint = relationship('Sprint', back_populates='entrenamiento')
