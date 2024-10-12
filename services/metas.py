@@ -33,7 +33,9 @@ class MetaService():
         list_realizado = [
             True if i.strip() == 'Yes' else False for i in list(datos['Realizado'])]
 
-        return list_objs, list_requisito, list_cumplido, list_realizado
+        data = list(zip(list_objs, list_requisito, list_cumplido, list_realizado))
+        
+        return data
     
         
     def create_meta(self, meta):

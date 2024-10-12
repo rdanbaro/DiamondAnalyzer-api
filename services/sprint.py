@@ -28,10 +28,10 @@ class SprintService:
         
         #Metas
         ruta_metas = sprint.ruta_metas_objetivos
-        objs, reqs, cumplidos, realizados = MetaService.get_datos_metas(ruta_metas)
+        metas = MetaService.get_datos_metas(ruta_metas)
         
-        for i in range(len(objs)):
-            new_meta = MetaModel(obj=objs[i], requisito=reqs[i], cumplido=cumplidos[i], realizado=realizados[i], sprint_id=new_sprint.id)
+        for meta in metas:
+            new_meta = MetaModel(obj=objs[0], requisito=reqs[1], cumplido=cumplidos[2], realizado=realizados[3], sprint_id=new_sprint.id)
             MetaService(self.db).create_meta(new_meta)
         
         #Habitos
