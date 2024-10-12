@@ -31,7 +31,7 @@ class SprintService:
         metas = MetaService.get_datos_metas(ruta_metas)
         
         for meta in metas:
-            new_meta = MetaModel(obj=objs[0], requisito=reqs[1], cumplido=cumplidos[2], realizado=realizados[3], sprint_id=new_sprint.id)
+            new_meta = MetaModel(obj=meta[0], requisito=meta[1], cumplido=meta[2], realizado=meta[3], sprint_id=new_sprint.id)
             MetaService(self.db).create_meta(new_meta)
         
         #Habitos
