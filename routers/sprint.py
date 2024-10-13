@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Path, Query
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from database.database import Session
 from schema.sprint import Sprint
 from services.sprint import SprintService
@@ -18,3 +19,7 @@ def create_sprint(sprint: Sprint) -> dict:
     
     return JSONResponse(content={'message': 'Sprint Creado'}, status_code=201) 
 
+@sprint_router.get('/sprints/{nombre}', tags=['sprints'], response_model=Sprint)
+def get_sprint(nombre: str):
+    sprint = SprintService(DB).get_sprint(nombre)
+    return JSONResponse(content=jsonable_encoder(sprint), status_code=200)

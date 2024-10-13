@@ -59,3 +59,7 @@ class SprintService:
             EntrenoService(self.db).create_entrenamiento(new_entrenamiento)
         
         return new_sprint
+    
+    def get_sprint(self, nombre):
+        sprint = self.db.query(SprintModel).filter(SprintModel.nombre == nombre).first()
+        return sprint
