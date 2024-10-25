@@ -1,13 +1,19 @@
+from models.sprint import Diamante
+
+from services.habitos import HabitoService
+from services.diamantes import DiamanteService
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from analysis.personalizados import convertir_horas_wh_a_entero
+#import seaborn as sns
+from services.utiles import convertir_horas_wh_a_entero
 from matplotlib.figure import Figure
 
 
 class DS:
+    def __init__(self, db):
+        self.db = db
     # Funcion utilizada en el apply para buscar habito con mas dias consecutivos
 
     def count_consecutive_yes(series):
@@ -70,8 +76,7 @@ class DS:
             7 valores: str con los habitos con mayor frecuencia, str con los habitos con menor frecuencia, str con el dia con mas habitos cumplidos, str con el dia con menor habitos cumplidos, str con los habitos con mayor racha, str con el porcentaje total de cumplimiento, una figura con un gráfico de barras que muestra la frecuencia de habitos por dia y una figura con un gráfico de barras que muestra la cantidad total de dias cumplidos por cada habito.
         """
         data_habit_example = pd.read
-        me_interesa_d = data_habit_example.drop(columns=['Progress', 'Status', 'Day']).iloc[len(
-            data_habit_example)-len(data_habit_example):len(data_habit_example)]
+        
         me_interesa = data_habit_example.drop(columns=['Date', 'Progress', 'Status', 'Day']).iloc[len(
             data_habit_example)-len(data_habit_example):len(data_habit_example)]
 
@@ -148,7 +153,7 @@ class DS:
         return f'Habitos con mayor frecuencia: \n {habits_maxfrec}', f'Habitos con menor frecuencia: \n {habits_minfrec}', f'Dia con mas habitos cumplidos: \n {days_maxfrec}', f'Dia con menor habitos cumplidos \n {days_minfrec}', f'Habitos con mayor racha \n f{habits_maxrach}', f'Porcentaje total de cumplimiento: {habits_porcent}',  fig2, fig1, habits_ordenados
 
 
-    def dame_graficas_diamantes(ruta):
+    def dame_graficas_diamantes(self, sprint_id):
 
         """
         Funcion que devuelve un tuple de 8 valores:
@@ -172,21 +177,21 @@ class DS:
             8 valores: str con el total de horas trackeadas, str con la categoria con mayor tiempo invertido, str con la actividad con mayor tiempo invertido, str con el porcentaje de tiempo trackeado, una figura con un gráfico de barras que muestra el tiempo invertido x categoria, una figura con un gráfico de líneas que muestra el tiempo de categorias x dia, una figura con un gráfico de barras que muestra el tiempo invertido x actividad y una figura con un gráfico de pastel que muestra el tiempo invertido x categoria en porcentaje.
         """
 
-        # Carga y preparacion de los datos
+        
 
-        df = pd.read_csv(ruta)
+        # Carga de datos
 
-        df = df.drop(len(df)-1)
-        df = df.fillna('Ocio')
-
-        df_preparado = df.drop(columns=['Inicio', 'Fin'])
-        df_preparado['Duración'] = df_preparado['Duración'].apply(
-            convertir_horas_wh_a_entero)
-
+        
+        d = DiamanteService(self.db)
+        diamantes = d.get_diamantes_sprint(sprint_id)
+        diamantes_dict = [d.__dict__ for d in diamantes]
+        df_preparado = pd.DataFrame(diamantes_dict)
+        
+        print(df_preparado)
         # Estadisticas
 
         # Calculo total horas trackeadas
-        total_horas_trackeadas = df_preparado['Duración'].sum()
+        #total_horas_trackeadas = df_preparado['Duración'].sum()
 
         # Calculo categoria con mayor tiempo invertido
         tiempo_por_categoria = df_preparado.groupby(['Etiquetas']).sum()

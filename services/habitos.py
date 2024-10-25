@@ -44,4 +44,6 @@ class HabitoService():
         self.db.commit()
         
     
-    
+    def get_habitos_sprint(self, sprint_id):
+        habitos = self.db.query(Habito).filter(Habito.sprint_id == sprint_id).all()
+        return habitos
