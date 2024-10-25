@@ -43,6 +43,6 @@ class MetaService():
         self.db.commit()
         
     
-    def get_metas(self, sprint_id):
+    def get_metas_sprint(self, sprint_id):
         metas = self.db.query(Meta).filter(Meta.sprint_id == sprint_id).all()
         return metas

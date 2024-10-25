@@ -8,7 +8,7 @@ class HabitoService():
         self.db = db
         
         
-    def get_datos_habitos(ruta):
+    def get_datos_habitos(self, ruta):
         
         data_raw = pd.read_csv(ruta)
         
@@ -39,7 +39,7 @@ class HabitoService():
         return data
         
         
-    def create_meta(self, habito):
+    def create_habito(self, habito):
         self.db.add(habito)
         self.db.commit()
         

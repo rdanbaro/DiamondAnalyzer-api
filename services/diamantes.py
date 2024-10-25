@@ -36,3 +36,8 @@ class DiamanteService():
         self.db.add(diamante)
         self.db.commit()
         
+        
+    def get_diamantes_sprint(self, sprint_id):
+        diamantes = self.db.query(Diamante).filter(Diamante.sprint_id == sprint_id).all()
+        df = pd.DataFrame(diamantes)
+        return diamantes

@@ -1,5 +1,5 @@
 from database.database import Base
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, Date
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, Date, DateTime
 #from models.meta import Meta
 from sqlalchemy.orm import relationship
 
@@ -48,8 +48,8 @@ class Diamante(Base):
     id = Column(Integer(), primary_key=True)
     actividad = Column(String(100), nullable=False)
     fecha = Column(Date, nullable=False)
-    inicio = Column(Date, nullable=False)
-    fin = Column(Date, nullable=False)
+    inicio = Column(DateTime, nullable=False)
+    fin = Column(DateTime, nullable=False)
     #duracion = Column(Float, nullable=False)
     etiqueta = Column(String(100), nullable=False)
     sprint_id = Column(Integer, ForeignKey('Sprints.id'))
