@@ -50,7 +50,7 @@ class Diamante(Base):
     fecha = Column(Date, nullable=False)
     inicio = Column(DateTime, nullable=False)
     fin = Column(DateTime, nullable=False)
-    #duracion = Column(Float, nullable=False)
+    duracion = Column(Float, nullable=False)
     etiqueta = Column(String(100), nullable=False)
     sprint_id = Column(Integer, ForeignKey('Sprints.id'))
     sprint = relationship('Sprint', back_populates='diamantes')

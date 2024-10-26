@@ -5,7 +5,7 @@ class EntrenoService():
     def __init__(self, db):
         self.db = db
         
-    def get_datos_entrenamiento(ruta):
+    def get_datos_entrenamiento(self, ruta):
         df = pd.read_csv(ruta)
         
         fecha = pd.to_datetime(df['Fecha'], format='%d/%m/%Y').tolist()

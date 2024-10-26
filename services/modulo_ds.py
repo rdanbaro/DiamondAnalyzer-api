@@ -6,7 +6,7 @@ from services.diamantes import DiamanteService
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-#import seaborn as sns
+import seaborn as sns
 from services.utiles import convertir_horas_wh_a_entero
 from matplotlib.figure import Figure
 
@@ -182,33 +182,37 @@ class DS:
         # Carga de datos
 
         
-        d = DiamanteService(self.db)
-        diamantes = d.get_diamantes_sprint(sprint_id)
+        diamante = DiamanteService(self.db)
+        diamantes = diamante.get_diamantes_sprint(sprint_id)
         diamantes_dict = [d.__dict__ for d in diamantes]
-        df_preparado = pd.DataFrame(diamantes_dict)
+        df = pd.DataFrame(diamantes_dict)
+        
+        df_preparado = df.drop(columns=[df.columns[0], 'inicio', 'fin', 'sprint_id'])
+        df_preparado['fecha'] = pd.to_datetime(df_preparado['fecha'])
+        df_preparado['fecha'] = df_preparado['fecha'].dt.strftime('%Y-%m-%d')
         
         print(df_preparado)
         # Estadisticas
 
         # Calculo total horas trackeadas
-        #total_horas_trackeadas = df_preparado['Duración'].sum()
+        total_horas_trackeadas = df_preparado['duracion'].sum()
 
         # Calculo categoria con mayor tiempo invertido
-        tiempo_por_categoria = df_preparado.groupby(['Etiquetas']).sum()
+        tiempo_por_categoria = df_preparado.groupby(['etiqueta']).sum()
 
-        cat_mayor_tiempo = tiempo_por_categoria['Duración'].idxmax()
+        cat_mayor_tiempo = tiempo_por_categoria['duracion'].idxmax()
 
         # Calculo actividad con mayor tiempo invertido
-        tiempo_por_actividad = df_preparado.groupby(['Tarea']).sum().reset_index()
+        tiempo_por_actividad = df_preparado.groupby(['actividad']).sum().reset_index()
         por_actividad_ordenado = tiempo_por_actividad.sort_values(
-            by='Duración', ascending=False)
+            by='duracion', ascending=False)
 
-        act_mayor_tiempo = tiempo_por_actividad['Duración'].idxmax()
+        act_mayor_tiempo = tiempo_por_actividad['duracion'].idxmax()
 
         # Calculo porcentaje de tiempo trackeado
-        tiempo_por_dia = df_preparado.groupby(['Día']).sum()
+        tiempo_por_dia = df_preparado.groupby(['fecha']).sum()
         tiempo_por_dia_por_categoria = df_preparado.groupby(
-            ['Día', 'Etiquetas']).sum().reset_index()
+            ['fecha', 'etiqueta']).sum().reset_index()
         cant_de_dias = len(tiempo_por_dia)
         horas_totales = cant_de_dias * 24
 
@@ -222,7 +226,7 @@ class DS:
         ax = fig1.add_subplot(1, 1, 1)
 
         sns.barplot(data=tiempo_por_categoria, x=tiempo_por_categoria.index,
-                    y=tiempo_por_categoria['Duración'], hue='Etiquetas')
+                    y=tiempo_por_categoria['duracion'], hue='etiqueta')
 
         plt.ylabel('Tiempo(h)')
         plt.xlabel('Categorías')
@@ -235,7 +239,7 @@ class DS:
         ax = fig2.add_subplot(1, 1, 1)
 
         sns.lineplot(data=tiempo_por_dia_por_categoria,
-                     x=tiempo_por_dia_por_categoria['Día'], y=tiempo_por_dia_por_categoria['Duración'], hue='Etiquetas')
+                     x=tiempo_por_dia_por_categoria['fecha'], y=tiempo_por_dia_por_categoria['duracion'], hue='etiqueta')
 
         plt.ylabel('Tiempo(h)')
 
@@ -247,24 +251,25 @@ class DS:
         fig3.set_facecolor('#8D99AE')
         ax = fig3.add_subplot(1, 1, 1)
         sns.barplot(data=por_actividad_ordenado,
-                    x=por_actividad_ordenado['Duración'], y=por_actividad_ordenado['Tarea'], hue='Tarea')
+                    x=por_actividad_ordenado['duracion'], y=por_actividad_ordenado['actividad'], hue='actividad')
 
         plt.ylabel('Actividad')
         plt.xlabel('Tiempo(h)')
 
         # Grafico de pastel: tiempo invertido x categoria en prct
         porcentajes = [
-            f'{(i/total_horas_trackeadas*100):.1f}' for i in tiempo_por_categoria['Duración']]
+            f'{(i/total_horas_trackeadas*100):.1f}' for i in tiempo_por_categoria['duracion']]
         porcentajes.sort()
         porcentajes.reverse()
 
         fig4 = plt.figure() #8D99AE
         fig4.set_facecolor('#8D99AE')
         ax = fig4.add_subplot(1, 1, 1)
-        plt.pie(x=tiempo_por_categoria['Duración'].sort_values(ascending=False),
+        plt.pie(x=tiempo_por_categoria['duracion'].sort_values(ascending=False),
                 shadow=True, wedgeprops={'width': 0.5}, pctdistance=0.85, autopct='%1.1f%%')
 
         plt.legend(labels=[f"{cat}- {p}%" for cat, p in zip(
-            tiempo_por_categoria.sort_values(by='Duración', ascending=False).index, porcentajes)], loc='upper right', bbox_to_anchor=(1.5, 1))
+            tiempo_por_categoria.sort_values(by='duracion', ascending=False).index, porcentajes)], loc='upper right', bbox_to_anchor=(1.5, 1))
 
-        return f'{total_horas_trackeadas}', f'{cat_mayor_tiempo}', f'{act_mayor_tiempo}', f'{prct_tiempo_track}', fig1, fig2, fig3, fig4
+        #return f'{total_horas_trackeadas}', f'{cat_mayor_tiempo}', f'{act_mayor_tiempo}', f'{prct_tiempo_track}', fig1, fig2, fig3, fig4
+        return f'{total_horas_trackeadas}', f'{cat_mayor_tiempo}', f'{act_mayor_tiempo}', f'{prct_tiempo_track}'

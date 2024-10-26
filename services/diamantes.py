@@ -8,13 +8,13 @@ class DiamanteService():
         self.db = db
         
         
-    def get_diamantes(ruta):
+    def get_diamantes(self, ruta):
         
         data_raw = pd.read_csv(ruta)
         
         data = (
         data_raw.drop(len(data_raw)-1)
-        .drop(columns=['Unnamed: 7', 'Ganancias', 'Duración'])
+        .drop(columns=['Unnamed: 7', 'Ganancias'])
         )
         data = data.fillna('Ocio')
         
@@ -23,12 +23,12 @@ class DiamanteService():
         fecha = pd.to_datetime(data['Día'], format='%d/%m/%Y').tolist()
         inicio = pd.to_datetime(data['Día'] + data['Inicio'], format='%d/%m/%Y%H:%M').tolist()
         fin = pd.to_datetime(data['Día'] + data['Fin'], format='%d/%m/%Y%H:%M').tolist()
-        #duracion = pd.to_timedelta(data['Duración']+':00').tolist()
+        duracion = pd.to_timedelta(data['Duración']+':00').apply(lambda x: x.total_seconds()/3600).tolist()
         etiqueta = data['Etiquetas'].tolist()
         
         
         
-        data = list(zip(tarea, fecha, inicio, fin, etiqueta))
+        data = list(zip(tarea, fecha, inicio, fin, duracion, etiqueta))
         
         return data
     

@@ -7,7 +7,7 @@ class MetaService():
         
         
         
-    def get_datos_metas(ruta):
+    def get_datos_metas(self, ruta):
         """
         Funcion que devuelve los datos de metas de un csv.
         Dado un csv, devuelve 4 listas: Objetivos, Requisitos, Logros y Realizados.
