@@ -206,10 +206,22 @@ class DS:
         df_preparado['fecha'] = pd.to_datetime(df_preparado['fecha'])
         df_preparado['fecha'] = df_preparado['fecha'].dt.strftime('%Y-%m-%d')
         
-        print(df_preparado)
-       
+        
+       # Calculo total horas trackeadas
+        total_horas_trackeadas = df_preparado['duracion'].sum()
+        
+        # Agrupamientos
+        tiempo_por_categoria = df_preparado.groupby(['etiqueta']).sum()
+        tiempo_por_actividad = df_preparado.groupby(['actividad']).sum().reset_index()
+        por_actividad_ordenado = tiempo_por_actividad.sort_values(
+            by='duracion', ascending=False)
 
-    
+        tiempo_por_dia = df_preparado.groupby(['fecha']).sum()
+        tiempo_por_dia_por_categoria = df_preparado.groupby(
+            ['fecha', 'etiqueta']).sum().reset_index()
+
+
+        # Graficas
 
         # Grafico de barras: tiempo invertido x categoria
         fig1 = plt.figure()
@@ -262,5 +274,8 @@ class DS:
         plt.legend(labels=[f"{cat}- {p}%" for cat, p in zip(
             tiempo_por_categoria.sort_values(by='duracion', ascending=False).index, porcentajes)], loc='upper right', bbox_to_anchor=(1.5, 1))
 
-        #return f'{total_horas_trackeadas}', f'{cat_mayor_tiempo}', f'{act_mayor_tiempo}', f'{prct_tiempo_track}', fig1, fig2, fig3, fig4
+        
+        
+        return fig1, fig2, fig3, fig4
+        
         
