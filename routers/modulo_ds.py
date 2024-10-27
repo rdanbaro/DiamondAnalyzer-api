@@ -61,3 +61,28 @@ def get_diamantes_graf_sprint(sprint_id: int):
 def get_habitos_stats_sprint(sprint_id: int):
     stats = DS(DB).get_stats_habitos(sprint_id)
     return JSONResponse(content=jsonable_encoder(stats), status_code=200)
+
+
+@moduloDs_router.get('/sprint_habitos_graf/{sprint_id}', tags=['DS_services'], response_model=list[dict])
+def get_habitos_graf_sprint(sprint_id: int):
+    fig1, fig2 = DS(DB).get_graf_habitos(sprint_id)
+    
+    
+    buf1 = BytesIO()
+    fig1.savefig(buf1, format='png')
+    buf1.seek(0)
+    
+    buf2 = BytesIO()
+    fig2.savefig(buf2, format='png')
+    buf2.seek(0)
+    
+
+    
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+        zip_file.writestr('figura1.png', buf1.getvalue())
+        zip_file.writestr('figura2.png', buf2.getvalue())
+    zip_buffer.seek(0)
+    
+    return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200)
+    

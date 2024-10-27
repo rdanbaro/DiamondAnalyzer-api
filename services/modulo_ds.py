@@ -96,45 +96,25 @@ class DS:
         
         return f'Habitos con mayor frecuencia: \n {habits_maxfrec}', f'Habitos con menor frecuencia: \n {habits_minfrec}', f'Dia con mas habitos cumplidos: \n {days_maxfrec}', f'Dia con menor habitos cumplidos \n {days_minfrec}', f'Habitos con mayor racha \n f{habits_maxrach}', f'Porcentaje total de cumplimiento: {habits_porcent}', f' {habits_ordenados}'
 
-    def dame_graficas_habitos(self, ruta):
-        
-        data_habit_example = pd.read
-        
-        me_interesa = data_habit_example.drop(columns=['Date', 'Progress', 'Status', 'Day']).iloc[len(
-            data_habit_example)-len(data_habit_example):len(data_habit_example)]
+    def get_graf_habitos(self, sprint_id):
+        habito = HabitoService(self.db)
+        habitos = habito.get_habitos_sprint(sprint_id)
+        habitos_dict = [d.__dict__ for d in habitos]
+        df = pd.DataFrame(habitos_dict)
+    
+        me_interesa = df.pivot(index='date', columns='habito', values='realizado').reset_index()
+        me_interesa = me_interesa.rename_axis(None, axis=1)
 
-        # Habito mayor&menor frecuencia
-        frec_habit = me_interesa.eq('Yes').sum()
-        dict = frec_habit.to_dict()
-        habits_maxfrec = [i for i in list(
-            dict.keys()) if dict[i] == frec_habit.max()]
-        habits_minfrec = [i for i in list(
-            dict.keys()) if dict[i] == frec_habit.min()]
-        habits_ordenados = frec_habit.sort_values()
-
-        # Frecuencia x dia
+        
+        
         new_name = me_interesa.transpose().reset_index()
 
         new_name.columns = range(len(new_name.columns))
-        frec_dia = new_name.eq('Yes').sum()
-
-        dict_d = frec_dia.to_dict()
-        days_maxfrec = [i for i in list(
-            dict_d.keys()) if dict_d[i] == frec_dia.max()]
-        days_minfrec = [i for i in list(
-            dict_d.keys()) if dict_d[i] == frec_dia.min()]
-
-        # Maximos dias consecutivos
-        consecutive_yes_count = me_interesa.apply(count_consecutive_yes)
-
-        dict_r = consecutive_yes_count.to_dict()
-        habits_maxrach = [i for i in list(
-            dict_r.keys()) if dict_r[i] == consecutive_yes_count.max()]
-
-        # Porcentaje de dias cumplidos
-        me_interesa.eq('Yes').sum().sum()
-        habits_porcent = me_interesa.eq('Yes').sum().sum() / me_interesa.size * 100
-
+        frec_dia = new_name.eq(1).sum()
+        
+        
+        frec_habit = me_interesa.eq(1).sum()
+        habits_ordenados = frec_habit.sort_values()
         # GRAFICAR
 
         # Grafica 1
@@ -173,7 +153,7 @@ class DS:
         # Ajustar el diseño de las subtramas
         plt.tight_layout()
 
-        return f'Habitos con mayor frecuencia: \n {habits_maxfrec}', f'Habitos con menor frecuencia: \n {habits_minfrec}', f'Dia con mas habitos cumplidos: \n {days_maxfrec}', f'Dia con menor habitos cumplidos \n {days_minfrec}', f'Habitos con mayor racha \n f{habits_maxrach}', f'Porcentaje total de cumplimiento: {habits_porcent}',  fig2, fig1, habits_ordenados
+        return fig1, fig2
 
 
     def get_stats_diamantes(self, sprint_id):
