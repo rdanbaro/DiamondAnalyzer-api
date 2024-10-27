@@ -18,5 +18,5 @@ def get_metas_sprint(sprint_id: int):
 
 @moduloDs_router.get('/sprint_diamantes_stats/{sprint_id}', tags=['DS_services'], response_model=list[dict])
 def get_diamantes_sprint(sprint_id: int):
-    stats = DS(DB).dame_graficas_diamantes(sprint_id)
+    stats = DS(DB).get_stats_diamantes(sprint_id)
     return JSONResponse(content=jsonable_encoder(stats), status_code=200)

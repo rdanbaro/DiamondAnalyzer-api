@@ -153,35 +153,7 @@ class DS:
         return f'Habitos con mayor frecuencia: \n {habits_maxfrec}', f'Habitos con menor frecuencia: \n {habits_minfrec}', f'Dia con mas habitos cumplidos: \n {days_maxfrec}', f'Dia con menor habitos cumplidos \n {days_minfrec}', f'Habitos con mayor racha \n f{habits_maxrach}', f'Porcentaje total de cumplimiento: {habits_porcent}',  fig2, fig1, habits_ordenados
 
 
-    def dame_graficas_diamantes(self, sprint_id):
-
-        """
-        Funcion que devuelve un tuple de 8 valores:
-        - str con el total de horas trackeadas
-        - str con la categoria con mayor tiempo invertido
-        - str con la actividad con mayor tiempo invertido
-        - str con el porcentaje de tiempo trackeado
-        - una figura con un gráfico de barras que muestra el tiempo invertido x categoria
-        - una figura con un gráfico de líneas que muestra el tiempo de categorias x dia
-        - una figura con un gráfico de barras que muestra el tiempo invertido x actividad
-        - una figura con un gráfico de pastel que muestra el tiempo invertido x categoria en porcentaje
-
-        Parameters
-        ----------
-        ruta: str
-            Ruta del csv que contiene los datos de los diamantes.
-
-        Returns
-        -------
-        tuple
-            8 valores: str con el total de horas trackeadas, str con la categoria con mayor tiempo invertido, str con la actividad con mayor tiempo invertido, str con el porcentaje de tiempo trackeado, una figura con un gráfico de barras que muestra el tiempo invertido x categoria, una figura con un gráfico de líneas que muestra el tiempo de categorias x dia, una figura con un gráfico de barras que muestra el tiempo invertido x actividad y una figura con un gráfico de pastel que muestra el tiempo invertido x categoria en porcentaje.
-        """
-
-        
-
-        # Carga de datos
-
-        
+    def get_stats_diamantes(self, sprint_id):
         diamante = DiamanteService(self.db)
         diamantes = diamante.get_diamantes_sprint(sprint_id)
         diamantes_dict = [d.__dict__ for d in diamantes]
@@ -191,9 +163,7 @@ class DS:
         df_preparado['fecha'] = pd.to_datetime(df_preparado['fecha'])
         df_preparado['fecha'] = df_preparado['fecha'].dt.strftime('%Y-%m-%d')
         
-        print(df_preparado)
-        # Estadisticas
-
+        
         # Calculo total horas trackeadas
         total_horas_trackeadas = df_preparado['duracion'].sum()
 
@@ -217,8 +187,29 @@ class DS:
         horas_totales = cant_de_dias * 24
 
         prct_tiempo_track = total_horas_trackeadas / horas_totales * 100
+        
+        return f'total_horas_trackeadas: {total_horas_trackeadas}', f'categoria_mayor_tiempo: {cat_mayor_tiempo}', f'actividad_mayor_tiempo: {act_mayor_tiempo}', f'porcentaje_tiempo_trackeado: {prct_tiempo_track}'
+        
+    
+    def get_graf_diamantes(self, sprint_id):
+  
 
-        # Graficas
+        # Carga de datos
+
+        
+        diamante = DiamanteService(self.db)
+        diamantes = diamante.get_diamantes_sprint(sprint_id)
+        diamantes_dict = [d.__dict__ for d in diamantes]
+        df = pd.DataFrame(diamantes_dict)
+        
+        df_preparado = df.drop(columns=[df.columns[0], 'inicio', 'fin', 'sprint_id'])
+        df_preparado['fecha'] = pd.to_datetime(df_preparado['fecha'])
+        df_preparado['fecha'] = df_preparado['fecha'].dt.strftime('%Y-%m-%d')
+        
+        print(df_preparado)
+       
+
+    
 
         # Grafico de barras: tiempo invertido x categoria
         fig1 = plt.figure()
@@ -272,4 +263,4 @@ class DS:
             tiempo_por_categoria.sort_values(by='duracion', ascending=False).index, porcentajes)], loc='upper right', bbox_to_anchor=(1.5, 1))
 
         #return f'{total_horas_trackeadas}', f'{cat_mayor_tiempo}', f'{act_mayor_tiempo}', f'{prct_tiempo_track}', fig1, fig2, fig3, fig4
-        return f'{total_horas_trackeadas}', f'{cat_mayor_tiempo}', f'{act_mayor_tiempo}', f'{prct_tiempo_track}'
+        
