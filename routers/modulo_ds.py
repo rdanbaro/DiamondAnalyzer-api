@@ -4,6 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from database.database import Session
 from services.metas import MetaService
 from services.modulo_ds import DS
+from services.habitos import HabitoService
 
 import zipfile
 from io import BytesIO
@@ -56,3 +57,7 @@ def get_diamantes_graf_sprint(sprint_id: int):
     return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200)
     
     
+@moduloDs_router.get('/sprint_habitos_stats/{sprint_id}', tags=['DS_services'], response_model=list[dict])
+def get_habitos_stats_sprint(sprint_id: int):
+    stats = DS(DB).get_stats_habitos(sprint_id)
+    return JSONResponse(content=jsonable_encoder(stats), status_code=200)

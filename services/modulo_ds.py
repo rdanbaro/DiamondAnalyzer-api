@@ -16,7 +16,7 @@ class DS:
         self.db = db
     # Funcion utilizada en el apply para buscar habito con mas dias consecutivos
 
-    def count_consecutive_yes(series):
+    def count_consecutive_yes(self, series):
         """
         Cuenta la cantidad de dias consecutivos de 'Yes' en una serie, es decir,
         cuantos dias seguidos se ha cumplido con el habito.
@@ -43,7 +43,7 @@ class DS:
         max_consecutive_yes = 0
         current_consecutive_yes = 0
         for value in series:
-            if value == 'Yes':
+            if value == 1:
                 current_consecutive_yes += 1
                 max_consecutive_yes = max(
                     max_consecutive_yes, current_consecutive_yes)
@@ -51,30 +51,53 @@ class DS:
                 current_consecutive_yes = 0
         return max_consecutive_yes
 
+    def get_stats_habitos(self, sprint_id):
+        
+        habito = HabitoService(self.db)
+        habitos = habito.get_habitos_sprint(sprint_id)
+        habitos_dict = [d.__dict__ for d in habitos]
+        df = pd.DataFrame(habitos_dict)
+    
+        me_interesa = df.pivot(index='date', columns='habito', values='realizado').reset_index()
+        me_interesa = me_interesa.rename_axis(None, axis=1)
 
+        # Habito mayor&menor frecuencia
+        frec_habit = me_interesa.eq(1).sum()
+        dict = frec_habit.to_dict()
+        habits_maxfrec = [i for i in list(
+            dict.keys()) if dict[i] == frec_habit.max()]
+        habits_minfrec = [i for i in list(
+            dict.keys()) if dict[i] == frec_habit.min()]
+        habits_ordenados = frec_habit.sort_values()
 
-    def dame_graficas_habitos(ruta):
-        """
-        Funcion que devuelve un tuple de 7 valores:
-        - str con los habitos con mayor frecuencia
-        - str con los habitos con menor frecuencia
-        - str con el dia con mas habitos cumplidos
-        - str con el dia con menor habitos cumplidos
-        - str con los habitos con mayor racha
-        - str con el porcentaje total de cumplimiento
-        - Una figura con un gráfico de barras que muestra la frecuencia de habitos por dia
-        - Una figura con un gráfico de barras que muestra la cantidad total de dias cumplidos por cada habito
+        # Frecuencia x dia
+        new_name = me_interesa.transpose().reset_index()
 
-        Parameters
-        ----------
-        ruta: str
-            Ruta del csv que contiene los datos de los habitos.
+        new_name.columns = range(len(new_name.columns))
+        frec_dia = new_name.eq(1).sum()
 
-        Returns
-        -------
-        tuple
-            7 valores: str con los habitos con mayor frecuencia, str con los habitos con menor frecuencia, str con el dia con mas habitos cumplidos, str con el dia con menor habitos cumplidos, str con los habitos con mayor racha, str con el porcentaje total de cumplimiento, una figura con un gráfico de barras que muestra la frecuencia de habitos por dia y una figura con un gráfico de barras que muestra la cantidad total de dias cumplidos por cada habito.
-        """
+        dict_d = frec_dia.to_dict()
+        days_maxfrec = [i for i in list(
+            dict_d.keys()) if dict_d[i] == frec_dia.max()]
+        days_minfrec = [i for i in list(
+            dict_d.keys()) if dict_d[i] == frec_dia.min()]
+
+        # Maximos dias consecutivos
+        consecutive_yes_count = me_interesa.apply(self.count_consecutive_yes)
+
+        dict_r = consecutive_yes_count.to_dict()
+        habits_maxrach = [i for i in list(
+            dict_r.keys()) if dict_r[i] == consecutive_yes_count.max()]
+
+        # Porcentaje de dias cumplidos
+        me_interesa.eq(1).sum().sum()
+        habits_porcent = me_interesa.eq(1).sum().sum() / me_interesa.size * 100
+
+        
+        return f'Habitos con mayor frecuencia: \n {habits_maxfrec}', f'Habitos con menor frecuencia: \n {habits_minfrec}', f'Dia con mas habitos cumplidos: \n {days_maxfrec}', f'Dia con menor habitos cumplidos \n {days_minfrec}', f'Habitos con mayor racha \n f{habits_maxrach}', f'Porcentaje total de cumplimiento: {habits_porcent}', f' {habits_ordenados}'
+
+    def dame_graficas_habitos(self, ruta):
+        
         data_habit_example = pd.read
         
         me_interesa = data_habit_example.drop(columns=['Date', 'Progress', 'Status', 'Day']).iloc[len(
