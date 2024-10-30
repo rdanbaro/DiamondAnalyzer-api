@@ -3,13 +3,30 @@ from unittest.mock import patch, MagicMock
 from services.habitos import HabitoService
 import pandas as pd
 
+from models.sprint import Habito
+
 class TestHabitoService(unittest.TestCase):
+    def setUp(self):
+        # Crear un objeto HabitoService con un db ficticio
+        self.db = None
+        self.habito_service = HabitoService(self.db)
+
+        # Simular un sprint_id
+        self.sprint_id = 1
+
+        # Simular habitos para el sprint
+        self.habitos = [
+            Habito(sprint_id=self.sprint_id, habito='Habito1', date='2022-01-01', realizado=True),
+            Habito(sprint_id=self.sprint_id, habito='Habito2', date='2022-01-02', realizado=False),
+            Habito(sprint_id=self.sprint_id, habito='Habito3', date='2022-01-03', realizado=True),
+        ]
+    
+    
+    
 
     @patch('pandas.read_csv')
     def test_get_datos_habitos(self, mock_read_csv):
-        # Crear un objeto HabitoService con un db ficticio
-        db = None
-        habito_service = HabitoService(db)
+        
 
         # Simular los datos del CSV
         data = {
@@ -25,7 +42,7 @@ class TestHabitoService(unittest.TestCase):
         ruta = 'ruta_de_prueba.csv'
 
         # Llamar a la función get_datos_habitos
-        datos_habitos = habito_service.get_datos_habitos(ruta)
+        datos_habitos = self.habito_service.get_datos_habitos(ruta)
 
         # Verificar que la función devuelve una lista
         self.assertIsInstance(datos_habitos, list)
@@ -41,20 +58,38 @@ class TestHabitoService(unittest.TestCase):
     
 
     
-    def test_create_habito(selfb):
-        # Crear un objeto HabitoService con un db ficticio
-        habito_service = HabitoService(None)
+    def test_create_habito(self):
+        
 
         # Simular un habito
         habito = MagicMock()
 
         # Reemplazar el atributo db en la instancia de HabitoService
-        with patch.object(habito_service, 'db') as mock_db:
+        with patch.object(self.habito_service, 'db') as mock_db:
             # Llamar a la función create_habito
-            habito_service.create_habito(habito)
+            self.habito_service.create_habito(habito)
 
             # Verificar que el habito se agregó al db
             mock_db.add.assert_called_once_with(habito)
 
             # Verificar que el db se comprometió
             mock_db.commit.assert_called_once()
+
+    def test_get_habitos_sprint(self):
+    
+        # Reemplazar el atributo db en la instancia de HabitoService
+        with patch.object(self.habito_service, 'db') as mock_db:
+            # Agregar los habitos al db
+            mock_db.query.return_value.filter.return_value.all.return_value = self.habitos
+
+            # Llamar a la función get_habitos_sprint
+            habitos_sprint = self.habito_service.get_habitos_sprint(self.sprint_id)
+
+            # Verificar que se devuelven los habitos correctos
+            self.assertEqual(habitos_sprint, self.habitos)
+
+            # Verificar que el db se consultó correctamente
+            
+            
+            mock_db.query.assert_called_once_with(Habito)
+            
