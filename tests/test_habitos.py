@@ -20,9 +20,7 @@ class TestHabitoService(unittest.TestCase):
             Habito(sprint_id=self.sprint_id, habito='Habito2', date='2022-01-02', realizado=False),
             Habito(sprint_id=self.sprint_id, habito='Habito3', date='2022-01-03', realizado=True),
         ]
-    
-    
-    
+        
 
     @patch('pandas.read_csv')
     def test_get_datos_habitos(self, mock_read_csv):
