@@ -23,3 +23,9 @@ def create_sprint(sprint: Sprint) -> dict:
 def get_sprint(nombre: str):
     sprint = SprintService(DB).get_sprint(nombre)
     return JSONResponse(content=jsonable_encoder(sprint), status_code=200)
+
+
+@sprint_router.get('/sprints/', tags=['sprints'], response_model=list[dict])
+def get_sprints():
+    sprints = SprintService(DB).get_sprints()
+    return JSONResponse(content=jsonable_encoder(sprints), status_code=200)
