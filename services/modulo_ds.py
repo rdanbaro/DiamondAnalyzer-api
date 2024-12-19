@@ -57,7 +57,7 @@ class DS:
         habitos = habito.get_habitos_sprint(sprint_id)
         habitos_dict = [d.__dict__ for d in habitos]
         df = pd.DataFrame(habitos_dict)
-    
+        
         me_interesa = df.pivot(index='date', columns='habito', values='realizado').reset_index()
         me_interesa = me_interesa.rename_axis(None, axis=1)
 
@@ -93,8 +93,13 @@ class DS:
         me_interesa.eq(1).sum().sum()
         habits_porcent = me_interesa.eq(1).sum().sum() / me_interesa.size * 100
 
-        
-        return f'Habitos con mayor frecuencia: \n {habits_maxfrec}', f'Habitos con menor frecuencia: \n {habits_minfrec}', f'Dia con mas habitos cumplidos: \n {days_maxfrec}', f'Dia con menor habitos cumplidos \n {days_minfrec}', f'Habitos con mayor racha \n f{habits_maxrach}', f'Porcentaje total de cumplimiento: {habits_porcent}', f' {habits_ordenados}'
+        habits_ordenados = (
+            habits_ordenados.drop(['date', 'Status'])
+            .index.tolist()
+            )
+
+        return f'Habitos con mayor frecuencia: \n {habits_maxfrec}', f'Habitos con menor frecuencia: \n {habits_minfrec}', f'Dia con mas habitos cumplidos: \n {days_maxfrec}', f'Dia con menor habitos cumplidos \n {days_minfrec}', f'Habitos con mayor racha \n {habits_maxrach}', f'Porcentaje total de cumplimiento: {habits_porcent}', f'{habits_ordenados}', len(habits_ordenados)
+
 
     def get_graf_habitos(self, sprint_id):
         habito = HabitoService(self.db)

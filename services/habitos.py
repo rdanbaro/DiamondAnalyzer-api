@@ -34,8 +34,6 @@ class HabitoService():
         realizado_list = [True if i == 'Yes' else False for i in list(data['Realizado'])]
         
         data = list(zip(habito_list, fecha_list, realizado_list))
-        
-        
         return data
         
         
