@@ -26,36 +26,68 @@ def get_diamantes_stats_sprint(sprint_id: int):
     stats = DS(DB).get_stats_diamantes(sprint_id)
     return JSONResponse(content=jsonable_encoder(stats), status_code=200)
 
+# @moduloDs_router.get('/sprint_diamantes_graf/{sprint_id}', tags=['DS_services'], response_model=list[dict])
+# def get_diamantes_graf_sprint(sprint_id: int):
+#     fig1, fig2, fig3, fig4 = DS(DB).get_graf_diamantes(sprint_id)
+    
+    
+#     buf1 = BytesIO()
+#     fig1.savefig(buf1, format='png')
+#     buf1.seek(0)
+    
+#     buf2 = BytesIO()
+#     fig2.savefig(buf2, format='png')
+#     buf2.seek(0)
+    
+#     buf3 = BytesIO()
+#     fig3.savefig(buf3, format='png')
+#     buf3.seek(0)
+    
+#     buf4 = BytesIO()
+#     fig4.savefig(buf4, format='png')
+#     buf4.seek(0)
+    
+#     zip_buffer = BytesIO()
+#     with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+#         zip_file.writestr('figura1.png', buf1.getvalue())
+#         zip_file.writestr('figura2.png', buf2.getvalue())
+#         zip_file.writestr('figura3.png', buf3.getvalue())
+#         zip_file.writestr('figura4.png', buf4.getvalue())
+#     zip_buffer.seek(0)
+    
+#     return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200)
+
 @moduloDs_router.get('/sprint_diamantes_graf/{sprint_id}', tags=['DS_services'], response_model=list[dict])
 def get_diamantes_graf_sprint(sprint_id: int):
     fig1, fig2, fig3, fig4 = DS(DB).get_graf_diamantes(sprint_id)
     
-    
     buf1 = BytesIO()
-    fig1.savefig(buf1, format='png')
+    pickle.dump(fig1, buf1)
     buf1.seek(0)
     
     buf2 = BytesIO()
-    fig2.savefig(buf2, format='png')
+    pickle.dump(fig2, buf2)
     buf2.seek(0)
     
     buf3 = BytesIO()
-    fig3.savefig(buf3, format='png')
+    pickle.dump(fig3, buf3)
     buf3.seek(0)
     
     buf4 = BytesIO()
-    fig4.savefig(buf4, format='png')
+    pickle.dump(fig4, buf4)
     buf4.seek(0)
+    
     
     zip_buffer = BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
-        zip_file.writestr('figura1.png', buf1.getvalue())
-        zip_file.writestr('figura2.png', buf2.getvalue())
-        zip_file.writestr('figura3.png', buf3.getvalue())
-        zip_file.writestr('figura4.png', buf4.getvalue())
+        zip_file.writestr('grafico1.pkl', buf1.getvalue())
+        zip_file.writestr('grafico2.pkl', buf2.getvalue())
+        zip_file.writestr('grafico3.pkl', buf3.getvalue())
+        zip_file.writestr('grafico4.pkl', buf4.getvalue())
     zip_buffer.seek(0)
     
-    return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200)
+    return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200) 
+ 
     
     
 @moduloDs_router.get('/sprint_habitos_stats/{sprint_id}', tags=['DS_services'], response_model=list[dict])
