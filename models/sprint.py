@@ -63,6 +63,19 @@ class Entrenamiento(Base):
     fecha = Column(Date, nullable=False)
     dificultad = Column(String(100), nullable=False)
     musculos = Column(String(100), nullable=False)
-    
     sprint_id = Column(Integer, ForeignKey('Sprints.id'))
     sprint = relationship('Sprint', back_populates='entrenamiento')
+    ejercicio = relationship('EntrenamientoEjercicio', back_populates='entrenamiento')
+
+class EntrenamientoEjercicio(Base):
+    __tablename__ = 'Ejercicios'
+
+    id = Column(Integer(), primary_key=True)
+    fecha = Column(Date, nullable=False)
+    ejercicio = Column(String(100), nullable=False)
+    repeticiones = Column(Integer, nullable=False)
+    ronda = Column(Integer, nullable=False)
+    rutina = Column(String(100), nullable=False)
+
+    rutina_id = Column(Integer, ForeignKey('Entrenamientos.id'))
+    entrenamiento = relationship('Entrenamiento', back_populates='ejercicio')

@@ -4,10 +4,12 @@ from models.sprint import Habito as HabitoModel
 from models.sprint import Diamante as DiamanteModel
 from models.sprint import Entrenamiento as EntrenamientoModel
 
+
 from services.habitos import HabitoService
 from services.metas import MetaService
 from services.diamantes import DiamanteService
 from services.entreno import EntrenoService
+
 
 import pandas as pd
 
@@ -50,13 +52,19 @@ class SprintService:
             new_diamante = DiamanteModel(actividad=diamante[0], fecha=diamante[1], inicio=diamante[2], fin=diamante[3], duracion=diamante[4], etiqueta=diamante[5], sprint_id=new_sprint.id)
             DiamanteService(self.db).create_diamante(new_diamante)
         
-        #Entrenamientos
+        #Entrenamientos & Ejercicios
         ruta_entrenamiento = sprint.ruta_entrenamiento
         rutinas = EntrenoService(self.db).get_datos_entrenamiento(ruta_entrenamiento)
         
+        
         for rutina in rutinas:
             new_entrenamiento = EntrenamientoModel(rutina=rutina[0], fecha=rutina[1], dificultad=rutina[2], musculos=rutina[3], sprint_id=new_sprint.id)
-            EntrenoService(self.db).create_entrenamiento(new_entrenamiento)
+            EntrenoService(self.db).create_entrenamiento(new_entrenamiento, ruta_entrenamiento)
+            
+            # for ejercicio in ejercicios:
+            #     new_ejercicio = EjercicioModel(fecha = ejercicio[0], ejercicio=ejercicio[1], repeticiones=ejercicio[2], ronda=ejercicio[3], rutina=ejercicio[4], rutina_id=new_entrenamiento.id)
+            #     EjercicioService(self.db).create_ejercicio(new_ejercicio)
+            
         
         return new_sprint
     
