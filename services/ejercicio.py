@@ -35,3 +35,7 @@ class EjercicioService():
     def create_ejercicio(self, ejercicio):
         self.db.add(ejercicio)
         self.db.commit()
+        
+    def get_ejercicios_rutina(self, rutina_id):
+        ejercicios = self.db.query(EntrenamientoEjercicio).filter(EntrenamientoEjercicio.rutina_id.in_(rutina_id)).all()
+        return ejercicios

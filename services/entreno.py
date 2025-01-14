@@ -31,3 +31,8 @@ class EntrenoService():
             else:
                 print(f'fecha:{entreno.fecha}', f'ejercicio[0]:{ejercicio[0]}')    
                 
+    def get_entrenamientos_sprint(self, sprint_id):
+        entrenamientos = self.db.query(Entrenamiento).filter(Entrenamiento.sprint_id == sprint_id).all()
+        ids_entrenamientos = [entrenamiento.id for entrenamiento in entrenamientos]
+        ejercicios = EjercicioService(self.db).get_ejercicios_rutina(ids_entrenamientos)
+        return entrenamientos, ejercicios
