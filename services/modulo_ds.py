@@ -286,4 +286,75 @@ class DS:
         
         return fig1, fig2, fig3, fig4
         
+    
+    def get_stats_entreno():
         
+        df_rutinas_raw = pd.read_csv(r"C:\Users\User\Downloads\Datos de Entreno Notion\Trackeo Entrenamientos.csv")
+        df_ejercicios_raw = pd.read_csv(r"C:\Users\User\Downloads\Datos de Entreno Notion\Ejercicios-Tipos.csv")
+
+        df_rutinas_processed = (
+        df_rutinas_raw.drop(columns=['Ejercicios'])
+        .rename(columns={'Title': 'Rutina', 'Músculos': 'Musculos'})
+        )
+        
+        # Total dias de entrenamiento
+        total_dias_entreno = df_rutinas_processed.shape[0]
+
+        df_musculos = df_rutinas_processed.groupby('Musculos').count()
+        df_musculos_split = df_rutinas_processed['Musculos'].str.split(',').explode()
+        conteo_por_musculo = df_musculos_split.str.strip().value_counts()
+
+        # Musculo mas entrenado
+        musculo_mas_entrenado = conteo_por_musculo.idxmax()
+        # Musculo menos entrenado
+        musculo_mnos_entrenado = conteo_por_musculo.idxmin()
+        
+        # Rutinas mas entrenadas
+        rutinas_mas_entrenadas = df_rutinas_processed['Rutina'].value_counts().idxmax()
+
+        df_ejercicios_processed = pd.melt(df_ejercicios_raw, var_name='Ejercicios',id_vars=['Fecha', 'Ronda', 'Rutina'], 
+                                  value_name='Repeticiones',
+                                  value_vars= df_ejercicios_raw.keys().tolist()[1:-1] 
+        ).dropna().sort_values(by=['Fecha', 'Ronda']).reset_index(drop=True)
+
+        # Rondas
+        rondas_por_dia = df_ejercicios_processed.groupby(['Fecha'])['Ronda'].nunique().reset_index()
+        max_rondas_por_dia = df_ejercicios_processed.groupby(['Fecha'])['Ronda'].max().reset_index()
+        total_rondas = int(max_rondas_por_dia['Ronda'].sum())
+
+        # Series
+        series_por_dia = df_ejercicios_processed.groupby(['Fecha']).count().reset_index()
+        total_series = int(series_por_dia['Ejercicios'].sum())
+
+        # Total de series por ejercicio
+        series_por_ejercicio = (
+            df_ejercicios_processed.groupby(['Ejercicios'])
+            .count()
+            .reset_index()
+            .loc[:,['Ejercicios', 'Fecha']]
+            .rename(columns={'Fecha': 'Total de series'})
+            .sort_values(by=['Total de series'], ascending=False)
+            .reset_index(drop=True)
+            )
+        
+        # Ejercicio con mas series
+        ejercicio_mas_series = series_por_ejercicio['Ejercicios'][0]
+        # Ejercicio con menos series
+        ejercicio_mnos_series = series_por_ejercicio['Ejercicios'][-1]
+        
+        
+        # Repeticiones
+        total_repeticiones_x_ejercicio = (
+            df_ejercicios_processed.groupby(['Ejercicios'])
+            .sum()
+            .reset_index()
+            .loc[:,['Ejercicios', 'Repeticiones']]
+            .rename(columns={'Repeticiones': 'Total de repeticiones'})
+            .sort_values(by=['Total de repeticiones'], ascending=False)
+            .reset_index(drop=True)
+            )
+
+        return musculo_mas_entrenado, musculo_mnos_entrenado, 
+        total_dias_entreno, rutina_mas_entrenada, total_rondas,
+        total_series, ejercicio_mas_series, ejercicio_mnos_series,
+        total_repeticiones_x_ejercicio
