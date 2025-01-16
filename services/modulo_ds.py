@@ -2,6 +2,7 @@ from models.sprint import Diamante
 
 from services.habitos import HabitoService
 from services.diamantes import DiamanteService
+from services.entreno import EntrenoService
 
 import pandas as pd
 import numpy as np
@@ -287,10 +288,20 @@ class DS:
         return fig1, fig2, fig3, fig4
         
     
-    def get_stats_entreno():
+    def get_stats_entreno(self, sprint_id):
         
-        df_rutinas_raw = pd.read_csv(r"C:\Users\User\Downloads\Datos de Entreno Notion\Trackeo Entrenamientos.csv")
-        df_ejercicios_raw = pd.read_csv(r"C:\Users\User\Downloads\Datos de Entreno Notion\Ejercicios-Tipos.csv")
+        #df_rutinas_raw = pd.read_csv(r"C:\Users\User\Downloads\Datos de Entreno Notion\Trackeo Entrenamientos.csv")
+        #df_ejercicios_raw = pd.read_csv(r"C:\Users\User\Downloads\Datos de Entreno Notion\Ejercicios-Tipos.csv")
+
+        entreno = EntrenoService(self.db)
+        entrenos, ejercicios = entreno.get_entrenamientos_sprint(sprint_id)
+        
+        entrenos_dict = [d.__dict__ for d in entrenos]
+        df_rutinas_raw = pd.DataFrame(entrenos_dict)
+        
+        ejercicios_dict = [d.__dict__ for d in ejercicios]
+        df_ejercicios_raw = pd.DataFrame(ejercicios_dict)
+
 
         df_rutinas_processed = (
         df_rutinas_raw.drop(columns=['Ejercicios'])
@@ -358,3 +369,59 @@ class DS:
         total_dias_entreno, rutina_mas_entrenada, total_rondas,
         total_series, ejercicio_mas_series, ejercicio_mnos_series,
         total_repeticiones_x_ejercicio
+        
+        
+    def get_graf_entreno(self, sprint_id):
+        
+        entreno = EntrenoService(self.db)
+        entrenos, ejercicios = entreno.get_entrenamientos_sprint(sprint_id)
+        
+        entrenos_dict = [d.__dict__ for d in entrenos]
+        df_rutinas_raw = pd.DataFrame(entrenos_dict)
+        
+        ejercicios_dict = [d.__dict__ for d in ejercicios]
+        df_ejercicios_raw = pd.DataFrame(ejercicios_dict)
+        
+        # Procesamiento para gráfico de pastel
+        df_rutinas_processed = df_rutinas_raw.rename(columns={'Músculos': 'Musculos'})
+        df_musculos_split = df_rutinas_processed['Musculos'].str.split(',').explode()
+        conteo_por_musculo = df_musculos_split.str.strip().value_counts()
+
+        # Gráfico de pastel
+        fig1 = plt.figure(figsize=(10, 6))
+        fig1.set_facecolor('#8D99AE')
+        plt.pie(conteo_por_musculo.values, 
+                labels=conteo_por_musculo.index,
+                autopct='%1.1f%%',
+                shadow=True)
+        plt.title('Distribución de Músculos Entrenados')
+
+        # Procesamiento para gráfico de barras
+        df_ejercicios_processed = pd.melt(
+            df_ejercicios_raw, 
+            var_name='Ejercicios',
+            id_vars=['Fecha', 'Ronda', 'Rutina'], 
+            value_name='Repeticiones',
+            value_vars=df_ejercicios_raw.keys().tolist()[1:-1]
+        ).dropna()
+
+        # Filtrar ejercicio específico
+        df_ejercicios_processed = df_ejercicios_processed[df_ejercicios_processed['Ejercicios'] != 'Sentadilla en Pared ( segs )']
+
+        total_repeticiones = df_ejercicios_processed.groupby('Ejercicios')['Repeticiones'].sum().sort_values(ascending=True)
+
+        # Gráfico de barras horizontales
+        fig2 = plt.figure(figsize=(12, 8))
+        fig2.set_facecolor('#8D99AE')
+        barras = plt.barh(total_repeticiones.index, total_repeticiones.values, color='#2a9d8f')
+
+        # Añadir etiquetas con el número de repeticiones
+        for i, barra in enumerate(barras):
+            width = barra.get_width()
+            plt.text(width, i, f' {int(width)}', va='center')
+
+        plt.title('Total de Repeticiones por Ejercicio')
+        plt.xlabel('Número de Repeticiones')
+        plt.ylabel('Ejercicios')
+        
+        return fig1, fig2
