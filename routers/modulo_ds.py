@@ -138,3 +138,29 @@ def get_habitos_graf_sprint(sprint_id: int):
     zip_buffer.seek(0)
     
     return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200)
+
+
+@moduloDs_router.get('/sprint_entrenos_stats/{sprint_id}', tags=['DS_services'], response_model=list[dict])
+def get_entreno_stats_sprint(sprint_id: int):
+    stats = DS(DB).get_stats_entreno(sprint_id)
+    return JSONResponse(content=jsonable_encoder(stats), status_code=200)
+
+@moduloDs_router.get('/sprint_entrenos_graf/{sprint_id}', tags=['DS_services'])
+def get_entrenos_graf_sprint(sprint_id: int):
+    fig1, fig2 = DS(DB).get_graf_entreno(sprint_id)
+    
+    buf1 = BytesIO()
+    pickle.dump(fig1, buf1)
+    buf1.seek(0)
+    
+    buf2 = BytesIO()
+    pickle.dump(fig2, buf2)
+    buf2.seek(0)
+    
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
+        zip_file.writestr('figura1.pkl', buf1.getvalue())
+        zip_file.writestr('figura2.pkl', buf2.getvalue())
+    zip_buffer.seek(0)
+    
+    return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200)

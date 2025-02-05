@@ -297,22 +297,22 @@ class DS:
         entrenos, ejercicios = entreno.get_entrenamientos_sprint(sprint_id)
         
         entrenos_dict = [d.__dict__ for d in entrenos]
-        df_rutinas_raw = pd.DataFrame(entrenos_dict)
+        df_rutinas_processed = pd.DataFrame(entrenos_dict)
         
         ejercicios_dict = [d.__dict__ for d in ejercicios]
-        df_ejercicios_raw = pd.DataFrame(ejercicios_dict)
+        df_ejercicios_processed = pd.DataFrame(ejercicios_dict)
 
 
-        df_rutinas_processed = (
-        df_rutinas_raw.drop(columns=['Ejercicios'])
-        .rename(columns={'Title': 'Rutina', 'Músculos': 'Musculos'})
-        )
+        #df_rutinas_processed = (
+        #df_rutinas_raw.drop(columns=['Ejercicios'])
+        #.rename(columns={'Title': 'Rutina', 'Músculos': 'Musculos'})
+        #)
         
         # Total dias de entrenamiento
         total_dias_entreno = df_rutinas_processed.shape[0]
 
-        df_musculos = df_rutinas_processed.groupby('Musculos').count()
-        df_musculos_split = df_rutinas_processed['Musculos'].str.split(',').explode()
+        df_musculos = df_rutinas_processed.groupby('musculos').count()
+        df_musculos_split = df_rutinas_processed['musculos'].str.split(',').explode()
         conteo_por_musculo = df_musculos_split.str.strip().value_counts()
 
         # Musculo mas entrenado
@@ -321,54 +321,54 @@ class DS:
         musculo_mnos_entrenado = conteo_por_musculo.idxmin()
         
         # Rutinas mas entrenadas
-        rutinas_mas_entrenadas = df_rutinas_processed['Rutina'].value_counts().idxmax()
+        rutinas_mas_entrenadas = df_rutinas_processed['rutina'].value_counts().idxmax()
+        
+        # df_ejercicios_processed = pd.melt(df_ejercicios_raw, var_name='ejercicio',id_vars=['fecha', 'ronda', 'rutina'], 
+        #                           value_name='cant_repeticiones',
+        #                           value_vars= df_ejercicios_raw.keys().tolist()[1:-1] 
+        # ).dropna().sort_values(by=['fecha', 'ronda']).reset_index(drop=True)
 
-        df_ejercicios_processed = pd.melt(df_ejercicios_raw, var_name='Ejercicios',id_vars=['Fecha', 'Ronda', 'Rutina'], 
-                                  value_name='Repeticiones',
-                                  value_vars= df_ejercicios_raw.keys().tolist()[1:-1] 
-        ).dropna().sort_values(by=['Fecha', 'Ronda']).reset_index(drop=True)
-
+        
+        
         # Rondas
-        rondas_por_dia = df_ejercicios_processed.groupby(['Fecha'])['Ronda'].nunique().reset_index()
-        max_rondas_por_dia = df_ejercicios_processed.groupby(['Fecha'])['Ronda'].max().reset_index()
-        total_rondas = int(max_rondas_por_dia['Ronda'].sum())
+        rondas_por_dia = df_ejercicios_processed.groupby(['fecha'])['ronda'].nunique().reset_index()
+        max_rondas_por_dia = df_ejercicios_processed.groupby(['fecha'])['ronda'].max().reset_index()
+        total_rondas = int(max_rondas_por_dia['ronda'].sum())
 
         # Series
-        series_por_dia = df_ejercicios_processed.groupby(['Fecha']).count().reset_index()
-        total_series = int(series_por_dia['Ejercicios'].sum())
+        series_por_dia = df_ejercicios_processed.groupby(['fecha']).count().reset_index()
+        total_series = int(series_por_dia['ejercicio'].sum())
 
         # Total de series por ejercicio
         series_por_ejercicio = (
-            df_ejercicios_processed.groupby(['Ejercicios'])
+            df_ejercicios_processed.groupby(['ejercicio'])
             .count()
             .reset_index()
-            .loc[:,['Ejercicios', 'Fecha']]
-            .rename(columns={'Fecha': 'Total de series'})
+            .loc[:,['ejercicio', 'fecha']]
+            .rename(columns={'fecha': 'Total de series'})
             .sort_values(by=['Total de series'], ascending=False)
             .reset_index(drop=True)
             )
-        
+        print('HOLA:',series_por_ejercicio)
         # Ejercicio con mas series
-        ejercicio_mas_series = series_por_ejercicio['Ejercicios'][0]
+        ejercicio_mas_series = series_por_ejercicio['ejercicio'][0]
         # Ejercicio con menos series
-        ejercicio_mnos_series = series_por_ejercicio['Ejercicios'][-1]
+        ejercicio_mnos_series = series_por_ejercicio['ejercicio'].iloc[-1]
         
         
         # Repeticiones
         total_repeticiones_x_ejercicio = (
-            df_ejercicios_processed.groupby(['Ejercicios'])
+            df_ejercicios_processed
+            .loc[:,['ejercicio', 'repeticiones']]
+            .groupby(['ejercicio'])
             .sum()
             .reset_index()
-            .loc[:,['Ejercicios', 'Repeticiones']]
-            .rename(columns={'Repeticiones': 'Total de repeticiones'})
+            .rename(columns={'repeticiones': 'Total de repeticiones'})
             .sort_values(by=['Total de repeticiones'], ascending=False)
             .reset_index(drop=True)
             )
 
-        return musculo_mas_entrenado, musculo_mnos_entrenado, 
-        total_dias_entreno, rutina_mas_entrenada, total_rondas,
-        total_series, ejercicio_mas_series, ejercicio_mnos_series,
-        total_repeticiones_x_ejercicio
+        return f'{musculo_mas_entrenado}', f'{musculo_mnos_entrenado}', f'{total_dias_entreno}', f'{rutinas_mas_entrenadas}', f'{total_rondas}', f'{total_series}', f'{ejercicio_mas_series}', f'{ejercicio_mnos_series}', f'{total_repeticiones_x_ejercicio}'
         
         
     def get_graf_entreno(self, sprint_id):
@@ -377,14 +377,14 @@ class DS:
         entrenos, ejercicios = entreno.get_entrenamientos_sprint(sprint_id)
         
         entrenos_dict = [d.__dict__ for d in entrenos]
-        df_rutinas_raw = pd.DataFrame(entrenos_dict)
+        df_rutinas_processed = pd.DataFrame(entrenos_dict)
         
         ejercicios_dict = [d.__dict__ for d in ejercicios]
-        df_ejercicios_raw = pd.DataFrame(ejercicios_dict)
+        df_ejercicios_processed = pd.DataFrame(ejercicios_dict)
         
         # Procesamiento para gráfico de pastel
-        df_rutinas_processed = df_rutinas_raw.rename(columns={'Músculos': 'Musculos'})
-        df_musculos_split = df_rutinas_processed['Musculos'].str.split(',').explode()
+        #df_rutinas_processed = df_rutinas_raw.rename(columns={'Músculos': 'Musculos'})
+        df_musculos_split = df_rutinas_processed['musculos'].str.split(',').explode()
         conteo_por_musculo = df_musculos_split.str.strip().value_counts()
 
         # Gráfico de pastel
@@ -397,18 +397,18 @@ class DS:
         plt.title('Distribución de Músculos Entrenados')
 
         # Procesamiento para gráfico de barras
-        df_ejercicios_processed = pd.melt(
-            df_ejercicios_raw, 
-            var_name='Ejercicios',
-            id_vars=['Fecha', 'Ronda', 'Rutina'], 
-            value_name='Repeticiones',
-            value_vars=df_ejercicios_raw.keys().tolist()[1:-1]
-        ).dropna()
+        # df_ejercicios_processed = pd.melt(
+        #     df_ejercicios_raw, 
+        #     var_name='ejercicio',
+        #     id_vars=['fecha', 'ronda', 'rutina'], 
+        #     value_name='Repeticiones',
+        #     value_vars=df_ejercicios_raw.keys().tolist()[1:-1]
+        # ).dropna()
 
         # Filtrar ejercicio específico
-        df_ejercicios_processed = df_ejercicios_processed[df_ejercicios_processed['Ejercicios'] != 'Sentadilla en Pared ( segs )']
+        df_ejercicios_processed = df_ejercicios_processed[df_ejercicios_processed['ejercicio'] != 'Sentadilla en Pared ( segs )']
 
-        total_repeticiones = df_ejercicios_processed.groupby('Ejercicios')['Repeticiones'].sum().sort_values(ascending=True)
+        total_repeticiones = df_ejercicios_processed.groupby('ejercicio')['repeticiones'].sum().sort_values(ascending=True)
 
         # Gráfico de barras horizontales
         fig2 = plt.figure(figsize=(12, 8))
