@@ -159,8 +159,8 @@ def get_entrenos_graf_sprint(sprint_id: int):
     
     zip_buffer = BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
-        zip_file.writestr('figura1.pkl', buf1.getvalue())
-        zip_file.writestr('figura2.pkl', buf2.getvalue())
+        zip_file.writestr('graficoEntreno1.pkl', buf1.getvalue())
+        zip_file.writestr('graficoEntreno2.pkl', buf2.getvalue())
     zip_buffer.seek(0)
     
     return StreamingResponse(zip_buffer, media_type='application/zip', status_code=200)

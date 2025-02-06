@@ -368,7 +368,7 @@ class DS:
             .reset_index(drop=True)
             )
 
-        return f'{musculo_mas_entrenado}', f'{musculo_mnos_entrenado}', f'{total_dias_entreno}', f'{rutinas_mas_entrenadas}', f'{total_rondas}', f'{total_series}', f'{ejercicio_mas_series}', f'{ejercicio_mnos_series}', f'{total_repeticiones_x_ejercicio}'
+        return f'Musculo mas entrenado: {musculo_mas_entrenado}', f'Musculo menos entrenado: {musculo_mnos_entrenado}', f'Total de dias entrenados: {total_dias_entreno}', f'Rutina mas entrenada: {rutinas_mas_entrenadas}', f'Total de rondas: {total_rondas}', f'Total de series: {total_series}', f'Ejercicio con mas series: {ejercicio_mas_series}', f'Ejercicio con mas repeticiones: {ejercicio_mnos_series}'
         
         
     def get_graf_entreno(self, sprint_id):
